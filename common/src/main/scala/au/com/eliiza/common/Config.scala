@@ -1,14 +1,12 @@
-package au.com.eliiza.multitypetopicproducer
+package au.com.eliiza.common
 
 import com.typesafe.config.{ConfigFactory, ConfigException}
+import scala.io.Source
 import scala.util.{Try, Success, Failure}
 
 final case class Args(env: String)
 
-final case class Config(
-  serverIp: String, serverPort: Int, kafkaBootstrapServers: String, schemaRegistryUrl: String,
-  extraKafkaPropsFromFile: String, topic: String
-)
+final case class Config(default: com.typesafe.config.Config, extraAndOverride: Map[String, Any])
 
 trait BootstrapConfig[M[_]] {
   def validateArgs(args: List[String]): M[Args]
@@ -34,17 +32,24 @@ object Config extends BootstrapConfig[Try] {
       val conf = ConfigFactory.load().getConfig(args.env)
       Success(
         Config(
-          serverIp = conf.getString("server.ip"),
-          serverPort = conf.getInt("server.port"),
-          kafkaBootstrapServers = conf.getString("kafka.bootstrap-servers"),
-          schemaRegistryUrl = conf.getString("kafka.schema-registry-url"),
-          extraKafkaPropsFromFile =
-            if (conf.hasPath("kafka.extra-props-from-file")) conf.getString("kafka.extra-props-from-file") else "",
-          topic = conf.getString("kafka.topic")
+          default = conf,
+          extraAndOverride =
+            if (conf.hasPath("kafka.extra-props-file")) loadProps(conf.getString("kafka.extra-props-file"))
+            else Map.empty
         )
       )
     } catch {
       case e: ConfigException => Failure(e)
     }
+
+  private def loadProps(file: String): Map[String, Any] =
+    if (file.isEmpty())
+      Map.empty
+    else
+      (for {
+        line <- Source.fromFile(file).getLines()
+        if !line.trim().isEmpty() && !line.trim().startsWith("#")
+        entry = line.split("=", 2)
+      } yield (entry(0) -> entry(1))).toMap
 
 }

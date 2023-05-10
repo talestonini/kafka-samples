@@ -1,5 +1,6 @@
 package au.com.eliiza.multitypetopicproducer
 
+import au.com.eliiza.common.Config
 import au.com.eliiza.model._
 import org.apache.avro.Schema
 import scala.util.{Success, Failure}
@@ -29,8 +30,9 @@ object Main {
     sys.addShutdownHook(userUpdateEventProducer.close())
 
     // data production
-    userCreateEventProducer.produce(conf.topic, "jd", UserCreateEvent("jd", "John Doe"))
-    userUpdateEventProducer.produce(conf.topic, "jd", UserUpdateEvent("jd", "Johnny Doe"))
+    val topic = conf.default.getString("kafka.topic")
+    userCreateEventProducer.produce(topic, "jd", UserCreateEvent("jd", "John Doe"))
+    userUpdateEventProducer.produce(topic, "jd", UserUpdateEvent("jd", "Johnny Doe"))
   }
 
 }

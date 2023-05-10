@@ -10,24 +10,19 @@ val scalaTest           = "org.scalatest"       %% "scalatest"             % "3.
 val typesafeConfig      = "com.typesafe"         % "config"                % "1.4.2"
 
 lazy val kafkaSamples = (project in file("."))
-  .aggregate(util, model, multiTypeTopicProducer)
-  .dependsOn(util, model, multiTypeTopicProducer)
+  .aggregate(common, model, multiTypeTopicProducer)
+  .dependsOn(common, model, multiTypeTopicProducer)
   .enablePlugins(JavaAppPackaging)
   .settings(
-    name := "Kafka Samples",
+    name    := "Kafka Samples",
+    version := "0.1.0",
     libraryDependencies ++= Seq(
       scalaTest
     )
   )
 
-lazy val util = project
-  .settings(
-    name    := "Util",
-    version := "0.1.0"
-  )
-
 lazy val model = project
-  .dependsOn(util % "test->test")
+  .dependsOn(common % "test->test")
   .settings(
     name    := "Model",
     version := "0.1.0",
@@ -36,8 +31,33 @@ lazy val model = project
     )
   )
 
+lazy val common = project
+  .settings(
+    name    := "Common",
+    version := "0.1.0",
+    libraryDependencies ++= Seq(
+      scalaTest,
+      typesafeConfig
+    )
+  )
+
+lazy val multiTypeTopicConsumer = project
+  .dependsOn(model, common)
+  .settings(
+    name    := "Multi-type Topic Consumer",
+    version := "0.1.0",
+    resolvers += "confluent" at "https://packages.confluent.io/maven",
+    libraryDependencies ++= Seq(
+      jansi,
+      kafkaAvroSerialiser,
+      kafkaClients,
+      logbackClassic,
+      scalaTest
+    )
+  )
+
 lazy val multiTypeTopicProducer = project
-  .dependsOn(model, util % "test->test")
+  .dependsOn(model, common)
   .settings(
     name    := "Multi-type Topic Producer",
     version := "0.1.0",
@@ -47,8 +67,7 @@ lazy val multiTypeTopicProducer = project
       kafkaAvroSerialiser,
       kafkaClients,
       logbackClassic,
-      scalaTest,
-      typesafeConfig
+      scalaTest
     )
   )
 
