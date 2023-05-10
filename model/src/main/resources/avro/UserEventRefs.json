@@ -1,0 +1,12 @@
+[
+  {
+    "name": "au.com.eliiza.model.UserCreateEvent",
+    "subject": "user-create-event-value",
+    "version": 1
+  },
+  {
+    "name": "au.com.eliiza.model.UserUpdateEvent",
+    "subject": "user-update-event-value",
+    "version": 1
+  }
+]

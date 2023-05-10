@@ -1,0 +1,15 @@
+{
+  "name": "UserCreateEvent",
+  "namespace": "au.com.eliiza.model",
+  "type": "record",
+  "fields": [
+    {
+      "name": "userId",
+      "type": "string"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    }
+  ]
+}

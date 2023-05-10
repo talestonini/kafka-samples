@@ -1,0 +1,4 @@
+[
+  "au.com.eliiza.model.UserCreateEvent",
+  "au.com.eliiza.model.UserUpdateEvent"
+]

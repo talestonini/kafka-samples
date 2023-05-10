@@ -1,0 +1,16 @@
+{
+  "name": "UserUpdateEvent",
+  "namespace": "au.com.eliiza.model",
+  "type": "record",
+  "fields": [
+    {
+      "name": "userId",
+      "type": "string"
+    },
+    {
+      "name": "newName",
+      "type": "string"
+    }
+  ]
+}
+
