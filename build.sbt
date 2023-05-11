@@ -22,13 +22,15 @@ lazy val kafkaSamples = (project in file("."))
   )
 
 lazy val model = project
-  .dependsOn(common % "test->test")
+  .dependsOn(common)
   .settings(
     name    := "Model",
     version := "0.1.0",
     libraryDependencies ++= Seq(
       avro
-    )
+    ),
+    Compile / avroSpecificSourceDirectories := Seq(baseDirectory.value / "src/main/resources/avro"),
+    Compile / sourceGenerators += (Compile / avroScalaGenerateSpecific).taskValue
   )
 
 lazy val common = project
@@ -70,7 +72,3 @@ lazy val multiTypeTopicProducer = project
       scalaTest
     )
   )
-
-Compile / avroSpecificSourceDirectories := Seq(baseDirectory.value / "model/src/main/resources/avro")
-Compile / avroSpecificScalaSource       := baseDirectory.value / s"model/src/main/scala"
-Compile / sourceGenerators += (Compile / avroScalaGenerateSpecific).taskValue
