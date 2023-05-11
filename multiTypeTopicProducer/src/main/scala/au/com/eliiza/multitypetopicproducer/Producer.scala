@@ -22,7 +22,7 @@ class Producer[V](conf: Config) {
       new Callback() {
         override def onCompletion(md: RecordMetadata, e: Exception): Unit = {
           if (Option(e).isEmpty) {
-            logger.debug(s"produced into topic-partition:offset: $topic-${md.partition()}:${md.offset()}")
+            logger.info(s"produced into topic-partition:offset: $topic-${md.partition()}:${md.offset()}")
             promise.success(Right(md))
           } else {
             logger.error(s"failed producing into topic $topic: ${e.getMessage()}")
