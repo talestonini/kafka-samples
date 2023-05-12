@@ -1,6 +1,5 @@
-package au.com.eliiza.multitypetopicproducer
+package au.com.eliiza.common
 
-import au.com.eliiza.common.Config
 import io.confluent.kafka.serializers.{AbstractKafkaSchemaSerDeConfig, KafkaAvroSerializer}
 import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerConfig, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.serialization.StringSerializer
@@ -12,29 +11,32 @@ class Producer[V](conf: Config) {
 
   private lazy val logger: Logger = LoggerFactory.getLogger(this.getClass())
 
-  logger.debug(s"building kafka producer")
+  logger.debug(s">>> building kafka producer")
   private val kp = new KafkaProducer[String, V](kafkaProps().asJava)
 
-  def produce(topic: String, key: String, value: V): Promise[Either[Exception, RecordMetadata]] = {
+  def produce(topic: String, key: String, value: V): Promise[RecordMetadata] = {
     val record  = new ProducerRecord[String, V](topic, key, value)
-    val promise = Promise[Either[Exception, RecordMetadata]]()
+    val promise = Promise[RecordMetadata]()
+
     kp.send(record,
       new Callback() {
         override def onCompletion(md: RecordMetadata, e: Exception): Unit = {
           if (Option(e).isEmpty) {
-            logger.info(s"produced into topic-partition:offset: $topic-${md.partition()}:${md.offset()}")
-            promise.success(Right(md))
+            logger.info(s">>> produced into topic-partition:offset: $topic-${md.partition()}:${md.offset()}")
+            promise.success(md)
           } else {
-            logger.error(s"failed producing into topic $topic: ${e.getMessage()}")
+            logger.error(s">>> failed producing into topic $topic: ${e.getMessage()}")
             promise.failure(e)
           }
         }
       })
+
+    kp.flush()
     promise
   }
 
   def close(): Unit = {
-    logger.debug(s"closing kafka producer")
+    logger.debug(s">>> closing kafka producer")
     kp.close()
   }
 
@@ -47,7 +49,7 @@ class Producer[V](conf: Config) {
       AbstractKafkaSchemaSerDeConfig.AUTO_REGISTER_SCHEMAS      -> false,
       AbstractKafkaSchemaSerDeConfig.USE_LATEST_VERSION         -> true
     ) ++ conf.extraAndOverride
-    logger.debug(s"all producer kafka props: $map")
+    logger.debug(s">>> all producer kafka props: $map")
     map
   }
 

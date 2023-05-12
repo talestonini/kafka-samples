@@ -1,20 +1,21 @@
+import Dependencies._
+
 ThisBuild / scalaVersion := "2.13.10"
 ThisBuild / organization := "au.com.eliiza"
 
-val avro                = "org.apache.avro"      % "avro"                  % "1.11.1"
-val jansi               = "org.fusesource.jansi" % "jansi"                 % "2.4.0" // formats logs with colors
-val kafkaAvroSerialiser = "io.confluent"         % "kafka-avro-serializer" % "7.3.3"
-val kafkaClients        = "org.apache.kafka"     % "kafka-clients"         % "3.4.0"
-val logbackClassic      = "ch.qos.logback"       % "logback-classic"       % "1.4.7"
-val scalaTest           = "org.scalatest"       %% "scalatest"             % "3.2.15" % Test
-val typesafeConfig      = "com.typesafe"         % "config"                % "1.4.2"
+ThisBuild / scalacOptions += "-deprecation"
+
+ThisBuild / assembly / assemblyMergeStrategy := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x                             => MergeStrategy.first
+}
 
 lazy val kafkaSamples = (project in file("."))
-  .aggregate(common, model, multiTypeTopicProducer)
-  .dependsOn(common, model, multiTypeTopicProducer)
+  .aggregate(model, common, multiTypeTopicProducer, multiTypeTopicConsumer)
+  .dependsOn(model, common, multiTypeTopicProducer, multiTypeTopicConsumer)
   .enablePlugins(JavaAppPackaging)
   .settings(
-    name    := "Kafka Samples",
+    name    := "kafka-samples",
     version := "0.1.0",
     libraryDependencies ++= Seq(
       scalaTest
@@ -22,53 +23,33 @@ lazy val kafkaSamples = (project in file("."))
   )
 
 lazy val model = project
-  .dependsOn(common)
   .settings(
-    name    := "Model",
+    name    := "model",
     version := "0.1.0",
-    libraryDependencies ++= Seq(
-      avro
-    ),
+    libraryDependencies ++= Seq(avro),
     Compile / avroSpecificSourceDirectories := Seq(baseDirectory.value / "src/main/resources/avro"),
     Compile / sourceGenerators += (Compile / avroScalaGenerateSpecific).taskValue
   )
 
 lazy val common = project
+  .dependsOn(model)
   .settings(
-    name    := "Common",
-    version := "0.1.0",
-    libraryDependencies ++= Seq(
-      scalaTest,
-      typesafeConfig
-    )
-  )
-
-lazy val multiTypeTopicConsumer = project
-  .dependsOn(model, common)
-  .settings(
-    name    := "Multi-type Topic Consumer",
+    name    := "common",
     version := "0.1.0",
     resolvers += "confluent" at "https://packages.confluent.io/maven",
-    libraryDependencies ++= Seq(
-      jansi,
-      kafkaAvroSerialiser,
-      kafkaClients,
-      logbackClassic,
-      scalaTest
-    )
+    libraryDependencies ++= basicDependencies ++ kafkaDependencies ++ Seq(typesafeConfig)
   )
 
 lazy val multiTypeTopicProducer = project
   .dependsOn(model, common)
   .settings(
-    name    := "Multi-type Topic Producer",
-    version := "0.1.0",
-    resolvers += "confluent" at "https://packages.confluent.io/maven",
-    libraryDependencies ++= Seq(
-      jansi,
-      kafkaAvroSerialiser,
-      kafkaClients,
-      logbackClassic,
-      scalaTest
-    )
+    name    := "multi-type-topic-producer",
+    version := "0.1.0"
+  )
+
+lazy val multiTypeTopicConsumer = project
+  .dependsOn(model, common)
+  .settings(
+    name    := "multi-type-topic-consumer",
+    version := "0.1.0"
   )

@@ -23,8 +23,8 @@ object Config extends BootstrapConfig[Try] {
         if (validEnvs.contains(env))
           Success(Args(env))
         else
-          Failure(new Exception(s"environment must be one of [${validEnvs.mkString(", ")}]"))
-      case _ => Failure(new Exception("wrong number of arguments"))
+          Failure(new Exception(s">>> environment must be one of [${validEnvs.mkString(", ")}]"))
+      case _ => Failure(new Exception(">>> wrong number of arguments"))
     }
 
   override def getConfig(args: Args): Try[Config] =
