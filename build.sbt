@@ -12,6 +12,7 @@ ThisBuild / assembly / assemblyMergeStrategy := {
 
 lazy val kafkaSamples = (project in file("."))
   .aggregate(model, common, multiTypeTopicProducer, multiTypeTopicConsumer)
+  .configs(IntegrationTest)
   .dependsOn(model, common, multiTypeTopicProducer, multiTypeTopicConsumer)
   .enablePlugins(JavaAppPackaging)
   .settings(
@@ -32,12 +33,15 @@ lazy val model = project
   )
 
 lazy val common = project
+  .configs(IntegrationTest)
   .dependsOn(model)
   .settings(
     name    := "common",
     version := "0.1.0",
     resolvers += "confluent" at "https://packages.confluent.io/maven",
-    libraryDependencies ++= basicDependencies ++ kafkaDependencies ++ Seq(typesafeConfig)
+    libraryDependencies ++= basicDependencies ++ kafkaDependencies ++ Seq(gigahorse, testContainers, typesafeConfig),
+    Defaults.itSettings,
+    IntegrationTest / fork := true
   )
 
 lazy val multiTypeTopicProducer = project

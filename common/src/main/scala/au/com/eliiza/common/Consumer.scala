@@ -20,25 +20,31 @@ class Consumer[V](conf: Config, processFn: (String, V) => Either[Exception, Any]
   logger.debug(s">>> building kafka consumer")
   private val kc = new KafkaConsumer[String, V](kafkaProps().asJava)
 
+  // this is intended to be used in testing
   def consumeOnce(topic: String, pollDuration: FiniteDuration): List[V] =
-    consume(topic, false, pollDuration)
+    consume(topic, false, false, pollDuration)
 
-  def consume(topic: String, pollForever: Boolean = true, pollDuration: FiniteDuration = 100 millis): List[V] = {
+  // this is intended to be used in production
+  def consume(topic: String, handleInterruption: Boolean = true, pollForever: Boolean = true,
+    pollDuration: FiniteDuration = 100 millis): List[V] = {
+
     // handle shutdown, ie interrupting the consumer
-    val mainThread = Thread.currentThread()
-    Runtime
-      .getRuntime()
-      .addShutdownHook(new Thread() {
-        override def run(): Unit = {
-          logger.info(">>> detected shutdown, waking up the consumer...")
-          kc.wakeup()
-          try {
-            mainThread.join()
-          } catch {
-            case ie: InterruptedException => ie.printStackTrace()
+    if (handleInterruption) {
+      val mainThread = Thread.currentThread()
+      Runtime
+        .getRuntime()
+        .addShutdownHook(new Thread() {
+          override def run(): Unit = {
+            logger.info(">>> detected shutdown, waking up the consumer...")
+            kc.wakeup()
+            try {
+              mainThread.join()
+            } catch {
+              case ie: InterruptedException => ie.printStackTrace()
+            }
           }
-        }
-      })
+        })
+    }
 
     var data = ListBuffer[V]()
     try {

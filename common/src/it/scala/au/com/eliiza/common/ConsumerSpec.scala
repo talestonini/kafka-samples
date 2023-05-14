@@ -1,28 +1,28 @@
 package au.com.eliiza.common
 
 import au.com.eliiza.model._
-import org.scalatest._
-import flatspec._
-import matchers._
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import scala.util.{Success, Failure}
 
-class ConsumerSpec extends AnyFlatSpec with should.Matchers with BeforeAndAfterAll {
+class ConsumerSpec extends BaseItSpec {
 
-  val conf: Config = (for {
-    args <- Config.validateArgs(List("test"))
-    conf <- Config.getConfig(args)
-  } yield conf) match {
-    case Success(c) => c
-    case Failure(e) => throw new Exception(s"unable to load test config: ${e.getMessage()}")
-  }
-
-  val topic                   = conf.default.getString("kafka.topic")
+  val admin                   = new Admin(conf)
   val userCreateEventProducer = new Producer[UserCreateEvent](conf)
   val consumer                = new Consumer(conf, processFn)
+  val topic                   = conf.default.getString("kafka.topic")
+
+  override protected def beforeAll(): Unit = {
+    // create topics
+    admin.createTopics("user-event")
+
+    // register schemas
+    admin.registerSchema("user-create-event-value", "avro/UserCreateEvent.avsc")
+    admin.registerSchema("user-update-event-value", "avro/UserUpdateEvent.avsc")
+    admin.registerSchema("user-event-value", "avro/UserEvent.avsc_", Some("avro/UserEventRefs.json"))
+  }
 
   override protected def afterAll(): Unit = {
+    admin.close()
     userCreateEventProducer.close()
     consumer.close()
   }
@@ -35,6 +35,6 @@ class ConsumerSpec extends AnyFlatSpec with should.Matchers with BeforeAndAfterA
   }
 
   private def processFn[V](key: String, value: V): Either[Exception, Any] =
-    Right(println(s"consumed: key='$key' value=$value"))
+    Right(logger.info(s">>> consumed: key='$key' value=$value"))
 
 }
