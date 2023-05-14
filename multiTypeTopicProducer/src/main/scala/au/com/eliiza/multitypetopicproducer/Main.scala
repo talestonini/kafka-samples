@@ -8,14 +8,15 @@ object Main extends CommonMain {
   override def main(conf: Config): Unit = {
     // producers
     val userCreateEventProducer = new Producer[UserCreateEvent](conf)
-    sys.addShutdownHook(userCreateEventProducer.close())
     val userUpdateEventProducer = new Producer[UserUpdateEvent](conf)
-    sys.addShutdownHook(userUpdateEventProducer.close())
 
     // data production
     val topic = conf.default.getString("kafka.topic")
-    userCreateEventProducer.produce(topic, "jd", UserCreateEvent("jd", "John Doe"))
-    userUpdateEventProducer.produce(topic, "jd", UserUpdateEvent("jd", "Johnny Doe"))
+    userCreateEventProducer.produce(topic, "jr", UserCreateEvent("jr", "John Rambo", 33))
+    userUpdateEventProducer.produce(topic, "jr", UserUpdateEvent("Johnny Rambo", 30))
+
+    userCreateEventProducer.close()
+    userUpdateEventProducer.close()
   }
 
 }
