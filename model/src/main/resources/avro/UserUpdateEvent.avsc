@@ -4,12 +4,12 @@
   "type": "record",
   "fields": [
     {
-      "name": "userId",
+      "name": "newName",
       "type": "string"
     },
     {
-      "name": "newName",
-      "type": "string"
+      "name": "newAge",
+      "type": "int"
     }
   ]
 }

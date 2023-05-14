@@ -45,15 +45,21 @@ lazy val common = project
   )
 
 lazy val multiTypeTopicProducer = project
-  .dependsOn(model, common)
+  .configs(IntegrationTest)
+  .dependsOn(model, common % "compile;it->it")
   .settings(
     name    := "multi-type-topic-producer",
-    version := "0.1.0"
+    version := "0.1.0",
+    Defaults.itSettings,
+    IntegrationTest / fork := true
   )
 
 lazy val multiTypeTopicConsumer = project
-  .dependsOn(model, common)
+  .configs(IntegrationTest)
+  .dependsOn(model, common % "compile;it->it")
   .settings(
     name    := "multi-type-topic-consumer",
-    version := "0.1.0"
+    version := "0.1.0",
+    Defaults.itSettings,
+    IntegrationTest / fork := true
   )
