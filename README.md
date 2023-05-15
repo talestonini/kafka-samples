@@ -10,7 +10,7 @@ schema definition) and common/utility code.
     compile
     test
     IntegrationTest/test
-    coverageAggregate        <--- for single report of all projects (use coverageReport if in single project\*)
+    coverageAggregate        <--- for single report of all projects (use coverageReport if in single project*)
     assembly
 
 \* You can work in a single project by running `project <project name>`, eg `project common`.
