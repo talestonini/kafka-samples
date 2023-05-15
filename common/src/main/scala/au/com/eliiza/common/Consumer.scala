@@ -21,7 +21,7 @@ class Consumer[V](conf: Config, processFn: (String, V) => Either[Exception, Any]
   private val kc = new KafkaConsumer[String, V](kafkaProps().asJava)
 
   // this is intended to be used in testing
-  def consumeOnce(topic: String, pollDuration: FiniteDuration): List[V] =
+  def consumeInSinglePoll(topic: String, pollDuration: FiniteDuration): List[V] =
     consume(topic, false, false, pollDuration)
 
   // this is intended to be used in production
@@ -54,7 +54,7 @@ class Consumer[V](conf: Config, processFn: (String, V) => Either[Exception, Any]
       while (!abort) {
         val records: ConsumerRecords[String, V]        = kc.poll(DurationConverters.toJava(pollDuration))
         val it: ju.Iterator[ConsumerRecord[String, V]] = records.iterator()
-        while (it.hasNext()) {
+        while (!abort && it.hasNext()) {
           val r = it.next()
           data += r.value()
 

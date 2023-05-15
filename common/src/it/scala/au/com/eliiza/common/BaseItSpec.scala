@@ -8,7 +8,8 @@ import org.slf4j.{Logger, LoggerFactory}
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy
 import scala.util.{Success, Failure}
 
-class BaseItSpec extends AnyFlatSpec with should.Matchers with BeforeAndAfterAll with TestContainerForAll {
+trait BaseItSpec
+    extends AnyFlatSpec with should.Matchers with BeforeAndAfterAll with TestContainerForAll with SetupKafka {
 
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass())
 
@@ -24,12 +25,12 @@ class BaseItSpec extends AnyFlatSpec with should.Matchers with BeforeAndAfterAll
       )
     )
 
-  val conf: Config = (for {
-    args <- Config.validateArgs(List("test"))
-    conf <- Config.getConfig(args)
-  } yield conf) match {
+  val conf = Config.getConfig("test") match {
     case Success(c) => c
     case Failure(e) => throw new Exception(s"unable to load test config: ${e.getMessage()}")
   }
+
+  override protected def beforeAll(): Unit =
+    setupKafka("test")
 
 }

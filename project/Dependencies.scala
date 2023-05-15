@@ -13,7 +13,7 @@ object Dependencies {
   val kafkaAvroSerialiser = "io.confluent"         % "kafka-avro-serializer" % "7.3.3"
   val kafkaClients        = "org.apache.kafka"     % "kafka-clients"         % kafkaVersion
   val logbackClassic      = "ch.qos.logback"       % "logback-classic"       % logbackVersion
-  val scalaTest           = "org.scalatest"       %% "scalatest"             % "3.2.15" % IntegrationTest
+  val scalaTest           = "org.scalatest"       %% "scalatest"             % "3.2.15" % "test,it"
   val testContainers = "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.40.12" % IntegrationTest
   val typesafeConfig = "com.typesafe"  % "config"                         % "1.4.2"
 

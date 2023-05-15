@@ -10,6 +10,11 @@ ThisBuild / assembly / assemblyMergeStrategy := {
   case x                             => MergeStrategy.first
 }
 
+ThisBuild / coverageEnabled            := true
+ThisBuild / coverageFailOnMinimum      := true
+ThisBuild / coverageMinimumStmtTotal   := 85
+ThisBuild / coverageMinimumBranchTotal := 50
+
 lazy val kafkaSamples = (project in file("."))
   .aggregate(model, common, multiTypeTopicProducer, multiTypeTopicConsumer)
   .configs(IntegrationTest)
@@ -29,7 +34,8 @@ lazy val model = project
     version := "0.1.0",
     libraryDependencies ++= Seq(avro),
     Compile / avroSpecificSourceDirectories := Seq(baseDirectory.value / "src/main/resources/avro"),
-    Compile / sourceGenerators += (Compile / avroScalaGenerateSpecific).taskValue
+    Compile / sourceGenerators += (Compile / avroScalaGenerateSpecific).taskValue,
+    coverageExcludedPackages := "au\\.com\\.eliiza\\.model\\..*"
   )
 
 lazy val common = project
@@ -61,5 +67,6 @@ lazy val multiTypeTopicConsumer = project
     name    := "multi-type-topic-consumer",
     version := "0.1.0",
     Defaults.itSettings,
-    IntegrationTest / fork := true
+    IntegrationTest / fork := true,
+    coverageExcludedFiles  := ".*Main.*" // consumer runs in an infinite loop
   )
