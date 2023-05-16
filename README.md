@@ -20,7 +20,7 @@ We use the *Scala* language and the [SBT](https://www.scala-sbt.org/index.html) 
     compile
     test
     IntegrationTest/test
-    coverageAggregate        <--- for single report of all projects (use coverageReport if in single project*)
+    coverageAggregate      <--- for single report of all projects (use coverageReport if in single project*)
     assembly
 
 \* You can work in a single project by running `project <project name>`, eg `project common`.
