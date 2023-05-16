@@ -6,13 +6,11 @@ schema definition) and common/utility code.
 
 # Dependencies
 
-We use the **Scala language** and the [SBT](https://www.scala-sbt.org/index.html) build tool.  Tests are mostly written
-in Scalatest, but other frameworks are encouraged too.  **Integration Tests** utilise
+We use the *Scala* language and the [SBT](https://www.scala-sbt.org/index.html) build tool.  Tests are mostly written in
+*Scalatest*, but other frameworks are encouraged too.  *Integration Tests* utilise
 [Test Containers](https://www.testcontainers.org/) (in fact,
 [testcontainers-scala](https://index.scala-lang.org/testcontainers/testcontainers-scala)), so you'll need to have
-**Docker**.
-
-In summary:
+*Docker*. In summary:
 - Scala and SBT (recommended installation with [Coursier](https://get-coursier.io/))
 - Docker
 
